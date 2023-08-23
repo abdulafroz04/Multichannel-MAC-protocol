@@ -1,0 +1,170 @@
+% Parameters
+num_nodes = 10;
+num_channels = 1; % Single channel
+channel_capacity = 1000; % bits per second
+packet_arrival_rate = 0.1;
+transmission_time = 50; % milliseconds
+energy_consumption_per_packet = 5; % Joules
+simulation_time = 1000; % milliseconds
+
+% Initialization
+num_packets = round(simulation_time * packet_arrival_rate);
+received_packets = zeros(num_nodes, 1);
+dropped_packets = zeros(num_nodes, 1);
+average_delay = zeros(num_nodes, 1);
+throughput = zeros(num_nodes, 1);
+energy_consumption = zeros(num_nodes, 1);
+efficiency = zeros(num_nodes, 1);
+
+for node = 1:num_nodes
+    successful_transmissions = 0;
+    total_delay = 0;
+    total_energy = 0;
+
+    for packet = 1:num_packets
+        if rand() < packet_arrival_rate
+            % Simulate transmission
+            transmission_delay = transmission_time;
+            total_delay = total_delay + transmission_delay;
+
+            % Update energy consumption
+            total_energy = total_energy + energy_consumption_per_packet;
+
+            successful_transmissions = successful_transmissions + 1;
+            received_packets(node) = received_packets(node) + 1;
+        else
+            dropped_packets(node) = dropped_packets(node) + 1;
+        end
+    end
+
+    average_delay(node) = total_delay / successful_transmissions;
+    throughput(node) = successful_transmissions * transmission_time / simulation_time;
+    energy_consumption(node) = total_energy;
+    efficiency(node) = throughput(node) / energy_consumption(node);
+end
+
+% average energy, average throughput, received packet rate, dropped packet rate
+avg_energy_single_channel = mean(energy_consumption);
+avg_throughput_single_channel = mean(throughput);
+received_packet_rate_single_channel = mean(received_packets) / simulation_time;
+dropped_packet_rate_single_channel = mean(dropped_packets) / simulation_time;
+
+% metrics for single-channel scenario...
+disp('Metrics for Single-Channel Scenario:');
+disp(['Average Energy Consumption: ', num2str(avg_energy_single_channel), ' Joules']);
+disp(['Average Throughput: ', num2str(avg_throughput_single_channel), ' bits per second']);
+disp(['Received Packet Rate: ', num2str(received_packet_rate_single_channel), ' packets per millisecond']);
+disp(['Dropped Packet Rate: ', num2str(dropped_packet_rate_single_channel), ' packets per millisecond']);
+disp(newline);
+
+% received and dropped packets for Single-Channel Scenario
+disp('Received and Dropped Packets for Single-Channel Scenario:');
+for node = 1:num_nodes
+    disp(['Node ', num2str(node), ': Received = ', num2str(received_packets(node)), ', Dropped = ', num2str(dropped_packets(node))]);
+end
+disp(newline);
+
+% Parameters
+num_nodes = 10;
+num_channels = 5; % Multi channel
+channel_capacity = 1000; % bits per second
+packet_arrival_rate = 0.1;
+transmission_time = 50; % milliseconds
+energy_consumption_per_packet = 5; % Joules
+simulation_time = 1000; % milliseconds
+
+% Initialization
+num_packets = round(simulation_time * packet_arrival_rate);
+received_packets = zeros(num_nodes, 1);
+dropped_packets = zeros(num_nodes, 1);
+average_delay = zeros(num_nodes, 1);
+throughput = zeros(num_nodes, 1);
+energy_consumption = zeros(num_nodes, 1);
+efficiency = zeros(num_nodes, 1);
+
+
+for node = 1:num_nodes
+    successful_transmissions = 0;
+    total_delay = 0;
+    total_energy = 0;
+
+    for packet = 1:num_packets
+        if rand() < packet_arrival_rate
+            selected_channel = randi(num_channels);
+
+            % Simulate channel contention
+            contention_delay = rand() * transmission_time;
+
+            % Simulate transmission
+            transmission_delay = transmission_time;
+            total_delay = total_delay + transmission_delay + contention_delay;
+
+            % Update energy consumption
+            total_energy = total_energy + energy_consumption_per_packet;
+
+            successful_transmissions = successful_transmissions + 1;
+            received_packets(node) = received_packets(node) + 1;
+        else
+            dropped_packets(node) = dropped_packets(node) + 1;
+        end
+    end
+
+    average_delay(node) = total_delay / successful_transmissions;
+    throughput(node) = successful_transmissions * transmission_time / simulation_time;
+    energy_consumption(node) = total_energy;
+    efficiency(node) = throughput(node) / energy_consumption(node);
+end
+
+% average energy, average throughput, received packet rate, dropped packet rate
+avg_energy_multichannel = mean(energy_consumption);
+avg_throughput_multichannel = mean(throughput);
+received_packet_rate_multichannel = mean(received_packets) / simulation_time;
+dropped_packet_rate_multichannel = mean(dropped_packets) / simulation_time;
+
+% metrics for multichannel scenario...
+disp('Metrics for Multichannel Scenario:');
+disp(['Average Energy Consumption: ', num2str(avg_energy_multichannel), ' Joules']);
+disp(['Average Throughput: ', num2str(avg_throughput_multichannel), ' bits per second']);
+disp(['Received Packet Rate: ', num2str(received_packet_rate_multichannel), ' packets per millisecond']);
+disp(['Dropped Packet Rate: ', num2str(dropped_packet_rate_multichannel), ' packets per millisecond']);
+disp(newline);
+
+% received and dropped packets for Multichannel Scenario
+disp('Received and Dropped Packets for Multichannel Scenario:');
+for node = 1:num_nodes
+    disp(['Node ', num2str(node), ': Received = ', num2str(received_packets(node)), ', Dropped = ', num2str(dropped_packets(node))]);
+end
+disp(newline);
+
+
+% Plotting
+
+% Metrics comparison plot
+figure;
+subplot(2, 2, 1);
+plot(1:num_nodes, energy_consumption, 'o-', 1:num_nodes, repmat(avg_energy_single_channel, 1, num_nodes), '--');
+xlabel('Node');
+ylabel('Energy Consumption (Joules)');
+legend('Multichannel', 'Single-Channel Avg', 'Location', 'best');
+title('Energy Consumption Comparison');
+
+subplot(2, 2, 2);
+plot(1:num_nodes, throughput, 'o-', 1:num_nodes, repmat(avg_throughput_single_channel, 1, num_nodes), '--');
+xlabel('Node');
+ylabel('Throughput (bits/s)');
+legend('Multichannel', 'Single-Channel Avg', 'Location', 'best');
+title('Throughput Comparison');
+
+subplot(2, 2, 3);
+plot(1:num_nodes, received_packets / simulation_time, 'o-', 1:num_nodes, repmat(received_packet_rate_single_channel, 1, num_nodes), '--');
+xlabel('Node');
+ylabel('Received Packet Rate (packets/ms)');
+legend('Multichannel', 'Single-Channel Avg', 'Location', 'best');
+title('Received Packet Rate Comparison');
+
+subplot(2, 2, 4);
+plot(1:num_nodes, dropped_packets / simulation_time, 'o-', 1:num_nodes, repmat(dropped_packet_rate_single_channel, 1, num_nodes), '--');
+xlabel('Node');
+ylabel('Dropped Packet Rate (packets/ms)');
+legend('Multichannel', 'Single-Channel Avg', 'Location', 'best');
+title('Dropped Packet Rate Comparison');
